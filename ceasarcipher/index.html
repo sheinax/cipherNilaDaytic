@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Caesar Cipher Decryption Challenge</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        /* General body styles */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f7f7f7;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            background: linear-gradient(to top left, #ff7e5f, #feb47b);
+        }
+
+        /* Container styling */
+        .container {
+            background-color: #fff;
+            padding: 2rem 3rem;
+            border-radius: 15px;
+            box-shadow: 0px 15px 30px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+            z-index: 2;
+            transition: transform 0.3s ease-in-out;
+        }
+
+        /* Title styling */
+        h1 {
+            margin-bottom: 1.5rem;
+            font-size: 2.5rem;
+            color: #ff7e5f;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Labels */
+        label {
+            display: block;
+            margin-top: 1.2rem;
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: #444;
+        }
+
+        /* Input fields and select box */
+        select, input {
+            width: 100%;
+            padding: 0.8rem;
+            margin-top: 0.6rem;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            box-sizing: border-box;
+            transition: border-color 0.3s ease;
+        }
+
+        select:focus, input:focus {
+            border-color: #ff7e5f;
+            outline: none;
+        }
+
+        /* Clue section */
+        .clue {
+            margin-top: 1rem;
+            font-style: italic;
+            color: #6c757d;
+            font-size: 1rem;
+        }
+
+        /* Encrypted word display */
+        .encrypted-word {
+            background-color: #f0f8ff;
+            padding: 1rem;
+            margin-top: 1.5rem;
+            font-weight: bold;
+            font-size: 1.2rem;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Key display */
+        .key-display {
+            margin-top: 1.5rem;
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: #007bff;
+        }
+
+        /* Timer and Score */
+        .timer, .score {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #333;
+            margin-top: 1.5rem;
+        }
+
+        /* Button styling */
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        button {
+            background-color: #ff7e5f;
+            color: #fff;
+            border: none;
+            padding: 0.8rem 2rem;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        button:hover {
+            background-color: #ff5c3b;
+            transform: scale(1.05);
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        /* Fireworks and correct answer animation */
+        @keyframes bounce {
+            0% { transform: scale(1); }
+            30% { transform: scale(1.1); }
+            50% { transform: scale(0.9); }
+            70% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .correct-answer {
+            animation: bounce 0.6s ease-in-out;
+            background-color: #d4edda; /* Light green background */
+            border: 1px solid #c3e6cb;
+        }
+
+        .fireworks {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .firework {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background-color: #ffcc00;
+            border-radius: 50%;
+            opacity: 0;
+            animation: explode 1s ease-out forwards;
+        }
+
+        @keyframes explode {
+            0% {
+                opacity: 1;
+                transform: translate(0, 0) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(var(--dx), var(--dy)) scale(2);
+            }
+        }
+        .exit {
+           font-size: larger; 
+           margin-left: 600px;
+
+        }
+    </style>
+</head>
+</style>
+</head>
+<body>
+    <div class="container">
+     <a class="exit" href="index2.html"><i class="fa-solid fa-x" style="color: #eca409;"></i></a>
+        <h1>Caesar Cipher Decryption Challenge</h1>
+
+        <label for="category">Select a Category:</label>
+        <select id="category" onchange="setEncryptedWord()">
+            <option value="animals">Animals</option>
+            <option value="fruits">Fruits</option>
+            <option value="countries">Countries</option>
+        </select>
+
+        <div class="clue" id="clue">Clue: A common pet.</div>
+
+        <div class="encrypted-word" id="encrypted-word">Wklv lv d fdw.</div>
+
+        <div class="key-display" id="key-display">Key: 3</div>
+
+        <label for="guess">Your Decrypted Guess:</label>
+        <input type="text" id="guess" placeholder="Enter your guess here...">
+
+        <div class="buttons">
+            <button onclick="checkGuess()">Submit Guess</button>
+        </div>
+
+        <div class="timer" id="timer">Time Left: 3:00</div>
+        <div class="score" id="score">Score: 0</div>
+    </div>
+
+    <div class="fireworks" id="fireworks"></div>
+
+    <script>
+        const words = {
+            animals: [
+                { word: "XUHU", clue: "A nocturnal bird known for hooting.", answer: "owl", key: 3 },
+                { word: "HIU", clue: "A wild canine predator.", answer: "wolf", key: 3 },
+                { word: "LHNG", clue: "An animal with black and white stripes.", answer: "zebra", key: 3 },
+                { word: "TAEUI", clue: "A big cat known for its spots.", answer: "leopard", key: 3 },
+                { word: "NAGH", clue: "A marsupial from Australia known for jumping.", answer: "kangaroo", key: 3 }
+            ],
+            fruits: [
+                { word: "NAGH", clue: "A tropical fruit known for its sweetness.", answer: "mango", key: 3 },
+                { word: "TAEUI", clue: "A small, round, and sweet fruit with a rough red skin.", answer: "lychee", key: 3 },
+                { word: "LHNG", clue: "A tropical fruit with a strong aroma and sweet taste.", answer: "guava", key: 3 },
+                { word: "HIU", clue: "A small, fuzzy fruit with green flesh.", answer: "kiwi", key: 3 },
+                { word: "XUHU", clue: "A melon with orange flesh and a sweet taste.", answer: "cantaloupe", key: 3 }
+            ],
+            countries: [
+                { word: "NAGH", clue: "A city-state known for its cleanliness.", answer: "singapore", key: 3 },
+                { word: "TAEUI", clue: "A Scandinavian country known for its high quality of life.", answer: "sweden", key: 3 },
+                { word: "LHNG", clue: "A small country located in the Himalayas.", answer: "nepal", key: 3 },
+                { word: "HIU", clue: "A country famous for its lakes and sauna culture.", answer: "finland", key: 3 },
+                { word: "XUHU", clue: "An island nation in South Asia, known for its tea.", answer: "sri lanka", key: 3 }
+            ],
+            capitals: [
+                { word: "HIU", clue: "The capital of Germany.", answer: "berlin", key: 3 },
+                { word: "XUHU", clue: "The capital of the United Kingdom.", answer: "london", key: 3 },
+                { word: "LHNG", clue: "The capital of France.", answer: "paris", key: 3 },
+                { word: "TAEUI", clue: "The capital of Japan.", answer: "tokyo", key: 3 },
+                { word: "NAGH", clue: "The capital of Russia.", answer: "moscow", key: 3 }
+            ],
+            historicalFigures: [
+                { word: "XUHU", clue: "The scientist who developed the theory of evolution.", answer: "darwin", key: 3 },
+                { word: "HIU", clue: "A Russian revolutionary leader.", answer: "trotsky", key: 3 },
+                { word: "COLUMBUS", clue: "The explorer credited with discovering the Americas.", answer: "columbus", key: 3 },
+                { word: "TAEUI", clue: "A famous English playwright and poet.", answer: "shakespeare", key: 3 },
+                { word: "NAGH", clue: "The physicist who developed the theory of relativity.", answer: "einstein", key: 3 }
+            ]
+        };
+
+        let currentWords;
+        let currentIndex = 0;
+        let score = 0;
+        let timer;
+        let timeLeft = 180; // 3 minutes in seconds
+
+        function setEncryptedWord() {
+            const category = document.getElementById('category').value;
+            currentWords = words[category];
+            currentIndex = 0;
+            loadWord();
+            startTimer();
+        }
+
+        function loadWord() {
+            const wordObj = currentWords[currentIndex];
+            document.getElementById('encrypted-word').innerText = wordObj.word;
+            document.getElementById('clue').innerText = `Clue: ${wordObj.clue}`;
+            document.getElementById('key-display').innerText = `Key: ${wordObj.key}`;
+        }
+
+        function checkGuess() {
+            const userGuess = document.getElementById('guess').value.trim().toLowerCase();
+            const correctAnswer = currentWords[currentIndex].answer.toLowerCase();
+
+            if (userGuess === correctAnswer) {
+                score++;
+                document.getElementById('score').innerText = `Score: ${score}`;
+                showFireworks();
+                animateCorrectAnswer();
+                nextWord();
+            } else {
+                alert("Incorrect guess! Try again.");
+            }
+        }
+
+        function animateCorrectAnswer() {
+            const encryptedWordElement = document.getElementById('encrypted-word');
+            encryptedWordElement.classList.add('correct-answer');
+            setTimeout(() => {
+                encryptedWordElement.classList.remove('correct-answer');
+            }, 600); // Animation duration
+        }
+
+        function nextWord() {
+            if (currentIndex < currentWords.length - 1) {
+                currentIndex++;
+                loadWord();
+            } else {
+                alert("Congratulations! You've completed the challenge.");
+            }
+        }
+
+        function startTimer() {
+            timer = setInterval(countdown, 1000);
+        }
+
+        function countdown() {
+            if (timeLeft <= 0) {
+                clearInterval(timer);
+                nextWord();
+            } else {
+                timeLeft--;
+                updateTimerDisplay();
+            }
+        }
+
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            document.getElementById('timer').innerText = `Time Left: ${formatTime(minutes)}:${formatTime(seconds)}`;
+        }
+
+        function formatTime(time) {
+            return time < 10 ? `0${time}` : time;
+        }
+
+        function showFireworks() {
+            const fireworksContainer = document.getElementById('fireworks');
+            const firework = document.createElement('div');
+            firework.classList.add('firework');
+            
+            const maxX = window.innerWidth;
+            const maxY = window.innerHeight;
+            const dx = Math.random() * 200 - 100;
+            const dy = Math.random() * 200 - 100;
+            
+            firework.style.left = `${Math.random() * maxX}px`;
+            firework.style.top = `${Math.random() * maxY}px`;
+            firework.style.setProperty('--dx', `${dx}px`);
+            firework.style.setProperty('--dy', `${dy}px`);
+            
+            fireworksContainer.appendChild(firework);
+
+            setTimeout(() => {
+                fireworksContainer.removeChild(firework);
+            }, 1000);
+        }
+
+        window.onload = function() {
+            setEncryptedWord();
+        }
+    </script>
+</body>
+</html>
